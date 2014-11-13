@@ -1,3 +1,5 @@
+#This code uses the page rank algorithm with damping factor consideration to find the page rank of sparesly connected pages.  Note: the sum of total page ranks is not normalized to 1
+
 import random
 
 class Graph:
@@ -58,15 +60,17 @@ class Vertex:
         return self.ident
 
 if __name__ == "__main__":
-
+	damping = .85
+	numpages = 100
 	web = Graph()
 	root = 0
+	lastvert2, lastvert3 = 0, 0
 	#Normalize ranks so the sum equals one
-
-	for i in range(0, 15):
+	for i in range(numpages):
 		#fills graph with page ranks (edge weights) and connects some vertices
 		web.addVertex(i, random.random())
 		temp = web.getVertex(i)	
+		print i, temp.getRank()
 		if i is 0:
 			root = temp
 			lastvert3 = root
@@ -77,19 +81,23 @@ if __name__ == "__main__":
 		if i % 2 ==  0:
 			lastvert2.addNeighbor(temp)
 			lastvert2 = temp
-
+		
 	connections = []
 	tempRank = 0
-
-	for i in range(0, 15):
+	for i in range(numpages):
 		temp = web.getVertex(i)
-		print temp
 		connections = temp.getConnections()
 		if connections is not None:
 	#		print "num outbout links", len(connections)
 			L = len(connections)
+			#sets page rank
 			for x in connections:
 				tempRank += x.getRank()/L	
-		temp.setRank(tempRank)	
-		print temp.getRank()
+			tempRank = (1-damping)/numpages + damping * tempRank
+			temp.setRank(tempRank)	
 		tempRank = 0
+		numConnections = 0
+		for j in range(len(temp.getConnections())):
+			numConnections += 1
+		print i, temp.getRank(), numConnections
+
