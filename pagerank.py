@@ -59,45 +59,62 @@ class Vertex:
     def getID(self):
         return self.ident
 
+
+def getRanks(n,graph):
+	numpages = n
+	ranks = graph
+        connections = []
+        tempRank = 0
+        for i in range(numpages):
+                temp = ranks.getVertex(i)
+                connections = temp.getConnections()
+                if connections is not None:
+        #               print "num outbout links", len(connections)
+                        L = len(connections)
+                        #sets page rank
+                        for x in connections:
+                                tempRank += x.getRank()/L
+                        tempRank = (1-damping)/numpages + damping * tempRank
+                        temp.setRank(tempRank)
+                tempRank = 0
+                numConnections = 0
+                for j in range(len(temp.getConnections())):
+                        numConnections += 1
+                print i, temp.getRank(), numConnections
+
+
+def initGraph(sign, n, graph):
+	numpages = n
+	#Negative Ranks
+	for i in range(numpages):
+                #fills graph with page ranks (edge weights) and connects some vertices
+                graph.addVertex(i, (sign)**i*random.random())
+                temp = graph.getVertex(i)
+                print i, temp.getRank()
+                if i is 0:
+                        root = temp
+                        lastvert3 = root
+                        lastvert2 = root
+                if i % 3 == 0:
+                        lastvert3.addNeighbor(temp)
+                        lastvert3 = temp
+                if i % 2 ==  0:
+                        lastvert2.addNeighbor(temp)
+                        lastvert2 = temp
+	return graph
+
+
 if __name__ == "__main__":
+	#make a graph with negative pank ranks too, perhaps these pages have material which would drive a viewer away, find page ranks for these vertices and also the shortest path among the negative ranked vertices.
 	damping = .85
-	numpages = 100
-	web = Graph()
+	numpages = 10
+	negativeRanks = Graph()
+	positiveRanks = Graph()
 	root = 0
 	lastvert2, lastvert3 = 0, 0
-	#Normalize ranks so the sum equals one
-	for i in range(numpages):
-		#fills graph with page ranks (edge weights) and connects some vertices
-		web.addVertex(i, random.random())
-		temp = web.getVertex(i)	
-		print i, temp.getRank()
-		if i is 0:
-			root = temp
-			lastvert3 = root
-			lastvert2 = root
-		if i % 3 == 0:
-			lastvert3.addNeighbor(temp)
-			lastvert3 = temp
-		if i % 2 ==  0:
-			lastvert2.addNeighbor(temp)
-			lastvert2 = temp
-		
-	connections = []
-	tempRank = 0
-	for i in range(numpages):
-		temp = web.getVertex(i)
-		connections = temp.getConnections()
-		if connections is not None:
-	#		print "num outbout links", len(connections)
-			L = len(connections)
-			#sets page rank
-			for x in connections:
-				tempRank += x.getRank()/L	
-			tempRank = (1-damping)/numpages + damping * tempRank
-			temp.setRank(tempRank)	
-		tempRank = 0
-		numConnections = 0
-		for j in range(len(temp.getConnections())):
-			numConnections += 1
-		print i, temp.getRank(), numConnections
 
+	positiveRanks = initGraph(1,numpages, positiveRanks)	
+	getRanks(numpages, positiveRanks)
+
+	negativeRanks = initGraph(-1,numpages, negativeRanks)
+	getRanks(numpages, negativeRanks)
