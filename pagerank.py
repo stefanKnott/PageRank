@@ -59,22 +59,21 @@ class Vertex:
     def getID(self):
         return self.ident
 
-
 def getRanks(n,graph):
 	numpages = n
 	ranks = graph
         connections = []
         tempRank = 0
+
         for i in range(numpages):
                 temp = ranks.getVertex(i)
                 connections = temp.getConnections()
                 if connections is not None:
-        #               print "num outbout links", len(connections)
                         L = len(connections)
-                        #sets page rank
+                        #compute page rank
                         for x in connections:
                                 tempRank += x.getRank()/L
-                        tempRank = (1-damping)/numpages + damping * tempRank
+	                tempRank = (1-damping)/numpages + damping * tempRank
                         temp.setRank(tempRank)
                 tempRank = 0
                 numConnections = 0
@@ -82,10 +81,9 @@ def getRanks(n,graph):
                         numConnections += 1
                 print i, temp.getRank(), numConnections
 
-
 def initGraph(sign, n, graph):
 	numpages = n
-	#Negative Ranks
+	#Normalize values such that the sum of all vertexs is equal to 1
 	for i in range(numpages):
                 #fills graph with page ranks (edge weights) and connects some vertices
                 graph.addVertex(i, (sign)**i*random.random())
@@ -103,18 +101,14 @@ def initGraph(sign, n, graph):
                         lastvert2 = temp
 	return graph
 
-
 if __name__ == "__main__":
-	#make a graph with negative pank ranks too, perhaps these pages have material which would drive a viewer away, find page ranks for these vertices and also the shortest path among the negative ranked vertices.
-	damping = .85
-	numpages = 10
 	negativeRanks = Graph()
 	positiveRanks = Graph()
-	root = 0
-	lastvert2, lastvert3 = 0, 0
+	damping = .85
+	numpages = 10
 
 	positiveRanks = initGraph(1,numpages, positiveRanks)	
 	getRanks(numpages, positiveRanks)
 
-	negativeRanks = initGraph(-1,numpages, negativeRanks)
-	getRanks(numpages, negativeRanks)
+#	negativeRanks = initGraph(-1,numpages, negativeRanks)
+#	getRanks(numpages, negativeRanks)
